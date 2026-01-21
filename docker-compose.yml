@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # ----------------------------
+  # Service 1: Database
+  # ----------------------------
+  mysql-db:
+    image: mysql:5.7
+    container_name: school-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: school
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # ----------------------------
+  # Service 2: Backend
+  # ----------------------------
+  backend:
+    build: ./Docker-Compose-Projects/backend
+    container_name: school-backend
+    restart: always
+    ports:
+      - "3500:3500"
+    environment:
+      host: mysql-db
+      user: user
+      password: password
+      database: school
+    depends_on:
+      - mysql-db
+
+  # ----------------------------
+  # Service 3: Frontend
+  # ----------------------------
+  frontend:
+    build: ./Docker-Compose-Projects/frontend
+    container_name: school-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+# ----------------------------
+# Volumes
+# ----------------------------
+volumes:
+  mysql_data:
